@@ -51,6 +51,7 @@ class NotificationManager:
             self.__surname,
             self.__captchaHandle,
         )
+        print(res)
         current_status = res["status"]
         current_last_updated = res["case_last_updated"]
         print(f"Current status: {current_status} - Last updated: {current_last_updated}")
