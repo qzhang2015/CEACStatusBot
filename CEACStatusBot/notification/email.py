@@ -38,15 +38,6 @@ class EmailNotificationHandle(NotificationHandle):
         output.append(f"Case Created: {data.get('case_created', 'N/A')}")
         output.append(f"Case Last Updated: {data.get('case_last_updated', 'N/A')}")
         
-        # 描述
-        output.append("\n[DESCRIPTION]")
-        output.append("-" * 40)
-        description = data.get('description', '')
-        import textwrap
-        for line in description.split('\n'):
-            if line.strip():  # 只处理非空行
-                wrapped = textwrap.fill(line, width=78)
-                output.append(wrapped)
         
         # 处理报告行，包括表格
         output.append("\n" + "=" * 80)
@@ -74,7 +65,15 @@ class EmailNotificationHandle(NotificationHandle):
         for line in other_lines:
             if line.strip():  # 只输出非空行
                 output.append(line)
-        
+        # 描述
+        output.append("\n[DESCRIPTION]")
+        output.append("-" * 40)
+        description = data.get('description', '')
+        import textwrap
+        for line in description.split('\n'):
+            if line.strip():  # 只处理非空行
+                wrapped = textwrap.fill(line, width=78)
+                output.append(wrapped)
         # 输出表格
         if table_lines:
             output.append("\n[DETAILED CASES TABLE]")
