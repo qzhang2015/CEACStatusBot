@@ -151,7 +151,7 @@ class NotificationManager:
         all_cases = []
         completed_cases = []
         waiting_days_list = []
-        from datetime import datetime, timedelta
+       
         # Try to parse dispdate as YYYY-MM-DD, fallback to YYYY-MM
         try:
             base_date = datetime.strptime(dispdate, "%Y-%m-%d")
