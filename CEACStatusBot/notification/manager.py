@@ -135,7 +135,7 @@ class NotificationManager:
         return results
 
 
-    def fetch_recent_completed_cases(dispdate: str, days: int):
+    def fetch_recent_completed_cases(dispdate, days):
         """
         Fetch cases completed in the last `days` from the given dispdate (YYYY-MM-DD or YYYY-MM).
         Returns (count, waiting_days_list, all_cases_table)
