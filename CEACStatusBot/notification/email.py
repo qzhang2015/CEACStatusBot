@@ -18,13 +18,79 @@ class EmailNotificationHandle(NotificationHandle):
             self.__hostPort = int(port)
         else:
             self.__hostPort = 0
+    def format_visa_data_with_tables(self, data):
+        """Format the visa data in a readable way, preserving table formatting"""
+        
+        output = []
+        
+        # 添加分隔线
+        output.append("=" * 80)
+        output.append(f"VISA STATUS CHECK - {data.get('time', '')}")
+        output.append("=" * 80)
+        
+        # 基本信息
+        output.append("\n[APPLICATION DETAILS]")
+        output.append("-" * 40)
+        output.append(f"Application Number: {data.get('application_num', 'N/A')}")
+        output.append(f"Original Application: {data.get('application_num_origin', 'N/A')}")
+        output.append(f"Visa Type: {data.get('visa_type', 'N/A')}")
+        output.append(f"Status: {data.get('status', 'N/A')}")
+        output.append(f"Case Created: {data.get('case_created', 'N/A')}")
+        output.append(f"Case Last Updated: {data.get('case_last_updated', 'N/A')}")
+        
+        # 描述
+        output.append("\n[DESCRIPTION]")
+        output.append("-" * 40)
+        description = data.get('description', '')
+        import textwrap
+        for line in description.split('\n'):
+            if line.strip():  # 只处理非空行
+                wrapped = textwrap.fill(line, width=78)
+                output.append(wrapped)
+        
+        # 处理报告行，包括表格
+        output.append("\n" + "=" * 80)
+        output.append("[PROCESSING REPORT]")
+        output.append("=" * 80)
+        
+        in_table = False
+        table_lines = []
+        other_lines = []
+        
+        # 分离表格行和非表格行
+        for line in data.get('reportlines', []):
+            if '+' in line and '|' in line:  # 检测表格行
+                in_table = True
+                table_lines.append(line)
+            elif line.strip() == '' and in_table:  # 表格结束
+                in_table = False
+                table_lines.append(line)
+            elif in_table:
+                table_lines.append(line)
+            else:
+                other_lines.append(line)
+        
+        # 输出非表格内容
+        for line in other_lines:
+            if line.strip():  # 只输出非空行
+                output.append(line)
+        
+        # 输出表格
+        if table_lines:
+            output.append("\n[DETAILED CASES TABLE]")
+            output.append("-" * 40)
+            for line in table_lines:
+                output.append(line)
+        
+        return "\n".join(output)
+
 
     def send(self,result):
         
         # {'success': True, 'visa_type': 'NONIMMIGRANT VISA APPLICATION', 'status': 'Issued', 'case_created': '30-Aug-2022', 'case_last_updated': '19-Oct-2022', 'description': 'Your visa is in final processing. If you have not received it in more than 10 working days, please see the webpage for contact information of the embassy or consulate where you submitted your application.', 'application_num': '***'}
 
         mail_title = '[CEACStatusBot] {} : {}'.format(result["application_num_origin"],result['status'])
-        mail_content = str(result)
+        mail_content = str(self.format_visa_data_with_tables(result))
 
         msg = MIMEMultipart()
         msg["Subject"] = Header(mail_title,'utf-8')
