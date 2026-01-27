@@ -10,7 +10,11 @@ from CEACStatusBot.captcha import CaptchaHandle, OnnxCaptchaHandle
 from CEACStatusBot.request import query_status
 
 from .handle import NotificationHandle
-
+import requests
+from bs4 import BeautifulSoup
+from tabulate import tabulate
+from typing import Dict, Tuple
+from datetime import datetime, timedelta
 DEFAULT_ACTIVE_HOURS = "00:00-23:59"
 
 
@@ -48,11 +52,7 @@ class NotificationManager:
     #####
     ######################################################
 
-    import requests
-    from bs4 import BeautifulSoup
-    from tabulate import tabulate
-    from typing import Dict, Tuple
-    from datetime import datetime, timedelta
+
 
     def fetch_l1_visa_stats(self, year_month: str):
         """
