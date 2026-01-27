@@ -26,17 +26,17 @@ class EmailNotificationHandle(NotificationHandle):
         
         # 基本信息
         output.append("\n[APPLICATION DETAILS]")
+        output.append("-" * 40)
         output.append(f"Application Number: {data.get('application_num', 'N/A')}")
-        output.append(f"Original Application: {data.get('application_num_origin', 'N/A')}")
-        output.append(f"Visa Type: {data.get('visa_type', 'N/A')}")
         output.append(f"Status: {data.get('status', 'N/A')}")
         output.append(f"Case Created: {data.get('case_created', 'N/A')}")
         output.append(f"Case Last Updated: {data.get('case_last_updated', 'N/A')}")
-        
+
         
         # 处理报告行，包括表格
+        
         output.append("[PROCESSING REPORT]")
-
+        output.append("-" * 40)
         
         in_table = False
         table_lines = []
