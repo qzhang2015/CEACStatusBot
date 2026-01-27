@@ -48,18 +48,6 @@ class NotificationManager:
     #####
     ######################################################
 
-    def send_report_email(subject, body, sender, receiver, smtp_server, password):
-        msg = MIMEMultipart()
-        msg['From'] = sender
-        msg['To'] = receiver
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'plain', 'utf-8'))
-
-        smtp = smtplib.SMTP_SSL(smtp_server, 465)  # ssl登录
-        print(smtp.login(sender, password))
-        print(smtp.sendmail(sender, receiver, msg.as_string()))
-        smtp.quit()
-
     import requests
     from bs4 import BeautifulSoup
     from tabulate import tabulate
@@ -72,67 +60,67 @@ class NotificationManager:
         Returns (pass_rate, waiting_days, l1_cases) where l1_cases is a list of dicts for each L1 case.
         """
 
-    # The dispdate param is in format YYYY-MM
-    url = f"https://www.checkee.info/main.php?dispdate={year_month[:4]}-{year_month[4:]}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-    # Find the detailed case table (with Update, ID, Visa Type, etc.)
-    pass_rate = "N/A"
-    waiting_days = []
-    l1_cases = []
-    tables = soup.find_all('table')
-    l1_clear = 0
-    l1_reject = 0
-    waiting_days_list = []
-    for table in tables:
-        header = table.find('tr')
-        if not header:
-            continue
-        header_cells = [td.get_text(strip=True) for td in header.find_all('td')]
-        # Look for the correct table by header
-        if (
-                'Visa Type' in header_cells and
-                'Status' in header_cells and
-                'Waiting Day(s)' in header_cells
-        ):
-            # Find column indices for all columns
-            col_indices = {col: i for i, col in enumerate(header_cells)}
-            visa_type_idx = col_indices['Visa Type']
-            status_idx = col_indices['Status']
-            waiting_idx = col_indices['Waiting Day(s)']
-            # Iterate over all rows (skip header)
-            for row in table.find_all('tr')[1:]:
-                cols = row.find_all('td')
-                if len(cols) <= max(visa_type_idx, status_idx, waiting_idx):
-                    continue
-                visa_type = cols[visa_type_idx].get_text(strip=True)
-                status = cols[status_idx].get_text(strip=True)
-                waiting = cols[waiting_idx].get_text(strip=True)
-                if visa_type == 'L1':
-                    # Collect all columns for this row
-                    case = {col: cols[idx].get_text(strip=True) if idx < len(cols) else '' for col, idx in
-                            col_indices.items()}
-                    l1_cases.append(case)
-                    if status == 'Clear':
-                        l1_clear += 1
-                        try:
-                            waiting_days_list.append(int(waiting))
-                        except Exception:
-                            pass
-                    else:
-                        l1_reject += 1
-            break
-    total = l1_clear + l1_reject
-    if total > 0:
-        pass_rate = f"{l1_clear / total:.2%}"
-    if waiting_days_list:
-        waiting_days = waiting_days_list
-    return (pass_rate, waiting_days, l1_cases)
+        # The dispdate param is in format YYYY-MM
+        url = f"https://www.checkee.info/main.php?dispdate={year_month[:4]}-{year_month[4:]}"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+    
+        # Find the detailed case table (with Update, ID, Visa Type, etc.)
+        pass_rate = "N/A"
+        waiting_days = []
+        l1_cases = []
+        tables = soup.find_all('table')
+        l1_clear = 0
+        l1_reject = 0
+        waiting_days_list = []
+        for table in tables:
+            header = table.find('tr')
+            if not header:
+                continue
+            header_cells = [td.get_text(strip=True) for td in header.find_all('td')]
+            # Look for the correct table by header
+            if (
+                    'Visa Type' in header_cells and
+                    'Status' in header_cells and
+                    'Waiting Day(s)' in header_cells
+            ):
+                # Find column indices for all columns
+                col_indices = {col: i for i, col in enumerate(header_cells)}
+                visa_type_idx = col_indices['Visa Type']
+                status_idx = col_indices['Status']
+                waiting_idx = col_indices['Waiting Day(s)']
+                # Iterate over all rows (skip header)
+                for row in table.find_all('tr')[1:]:
+                    cols = row.find_all('td')
+                    if len(cols) <= max(visa_type_idx, status_idx, waiting_idx):
+                        continue
+                    visa_type = cols[visa_type_idx].get_text(strip=True)
+                    status = cols[status_idx].get_text(strip=True)
+                    waiting = cols[waiting_idx].get_text(strip=True)
+                    if visa_type == 'L1':
+                        # Collect all columns for this row
+                        case = {col: cols[idx].get_text(strip=True) if idx < len(cols) else '' for col, idx in
+                                col_indices.items()}
+                        l1_cases.append(case)
+                        if status == 'Clear':
+                            l1_clear += 1
+                            try:
+                                waiting_days_list.append(int(waiting))
+                            except Exception:
+                                pass
+                        else:
+                            l1_reject += 1
+                break
+        total = l1_clear + l1_reject
+        if total > 0:
+            pass_rate = f"{l1_clear / total:.2%}"
+        if waiting_days_list:
+            waiting_days = waiting_days_list
+        return (pass_rate, waiting_days, l1_cases)
 
 
     def get_l1_visa_stats_for_months(months: list):
