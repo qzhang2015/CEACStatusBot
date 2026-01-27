@@ -54,7 +54,7 @@ class NotificationManager:
     from typing import Dict, Tuple
     from datetime import datetime, timedelta
 
-    def fetch_l1_visa_stats(year_month: str):
+    def fetch_l1_visa_stats(self, year_month: str):
         """
         Fetch L1 Visa pass rate, waiting days, and all L1 case details for a given year_month (format: YYYYMM).
         Returns (pass_rate, waiting_days, l1_cases) where l1_cases is a list of dicts for each L1 case.
@@ -123,7 +123,7 @@ class NotificationManager:
         return (pass_rate, waiting_days, l1_cases)
 
 
-    def get_l1_visa_stats_for_months(months: list):
+    def get_l1_visa_stats_for_months(self, months: list):
         results = {}
         for ym in months:
             pass_rate, waiting_days, l1_cases = fetch_l1_visa_stats(ym)
@@ -135,7 +135,7 @@ class NotificationManager:
         return results
 
 
-    def fetch_recent_completed_cases(dispdate, days):
+    def fetch_recent_completed_cases(self, dispdate, days):
         """
         Fetch cases completed in the last `days` from the given dispdate (YYYY-MM-DD or YYYY-MM).
         Returns (count, waiting_days_list, all_cases_table)
