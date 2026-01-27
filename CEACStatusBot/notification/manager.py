@@ -1,6 +1,6 @@
 import json
 import os
-import datetime
+
 
 import pytz
 import smtplib
@@ -40,8 +40,8 @@ class NotificationManager:
         if active_hours is None:
             active_hours = DEFAULT_ACTIVE_HOURS
         start_str, end_str = active_hours.split("-")
-        start = datetime.datetime.strptime(start_str, "%H:%M").time()
-        end = datetime.datetime.strptime(end_str, "%H:%M").time()
+        start = datetime.strptime(start_str, "%H:%M").time()
+        end = datetime.strptime(end_str, "%H:%M").time()
         if start > end:
             raise ValueError("Start time must be before end time, got start: {start}, end: {end}")
         return start, end
@@ -272,7 +272,7 @@ class NotificationManager:
         statuses.append({
             "status": status,
             "last_updated": last_updated,
-            "date": datetime.datetime.now().isoformat()
+            "date": datetime.now().isoformat()
         })
 
         with open(self.__status_file, "w") as file:
@@ -283,17 +283,17 @@ class NotificationManager:
             try:
                 TIMEZONE = os.environ["TIMEZONE"]
                 localTimeZone = pytz.timezone(TIMEZONE)
-                localTime = datetime.datetime.now(localTimeZone)
+                localTime = datetime.now(localTimeZone)
             except pytz.exceptions.UnknownTimeZoneError:
                 print("UNKNOWN TIMEZONE Error, use default")
-                localTime = datetime.datetime.now()
+                localTime = datetime.now()
             except KeyError:
                 print("TIMEZONE Error")
-                localTime = datetime.datetime.now()
+                localTime = datetime.now()
 
             active_hour_start, active_hour_end = self._get_hour_range()
-            start_dt = datetime.datetime.combine(localTime.date(), active_hour_start, tzinfo=localTimeZone)
-            end_dt = datetime.datetime.combine(localTime.date(), active_hour_end, tzinfo=localTimeZone)
+            start_dt = datetime.combine(localTime.date(), active_hour_start, tzinfo=localTimeZone)
+            end_dt = datetime.combine(localTime.date(), active_hour_end, tzinfo=localTimeZone)
             if not (start_dt <= localTime <= end_dt):
                 print(
                     f"Outside active hours {os.getenv('ACTIVE_HOURS', DEFAULT_ACTIVE_HOURS)}. "
