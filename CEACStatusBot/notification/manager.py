@@ -220,9 +220,9 @@ class NotificationManager:
         #     print("Status unchanged. No notification sent.")
         dispdate = "2026-01-19"
     
-        count_3, waiting_days_list_3, all_cases = self.fetch_recent_completed_cases(dispdate, days=3)
-        count_3, waiting_days_list_3, all_cases = self.fetch_recent_completed_cases(dispdate, days=3)
-        count_1, waiting_days_list_1, _ = self.fetch_recent_completed_cases(dispdate, days=1)
+        count_3, waiting_days_list_3, all_cases = self.fetch_recent_completed_cases(dispdate, 3)
+        count_3, waiting_days_list_3, all_cases = self.fetch_recent_completed_cases(dispdate, 3)
+        count_1, waiting_days_list_1, _ = self.fetch_recent_completed_cases(dispdate, 1)
         report_lines = []
         report_lines.append(f"Completed cases in last 1 day: {count_1}")
         report_lines.append(f"Completed cases in last 3 days: {count_3}")
