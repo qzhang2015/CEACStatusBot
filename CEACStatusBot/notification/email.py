@@ -22,15 +22,10 @@ class EmailNotificationHandle(NotificationHandle):
         """Format the visa data in a readable way, preserving table formatting"""
         
         output = []
-        
-        # 添加分隔线
-        output.append("=" * 80)
-        output.append(f"VISA STATUS CHECK - {data.get('time', '')}")
-        output.append("=" * 80)
+
         
         # 基本信息
         output.append("\n[APPLICATION DETAILS]")
-        output.append("-" * 40)
         output.append(f"Application Number: {data.get('application_num', 'N/A')}")
         output.append(f"Original Application: {data.get('application_num_origin', 'N/A')}")
         output.append(f"Visa Type: {data.get('visa_type', 'N/A')}")
@@ -40,9 +35,8 @@ class EmailNotificationHandle(NotificationHandle):
         
         
         # 处理报告行，包括表格
-        output.append("\n" + "=" * 80)
         output.append("[PROCESSING REPORT]")
-        output.append("=" * 80)
+
         
         in_table = False
         table_lines = []
