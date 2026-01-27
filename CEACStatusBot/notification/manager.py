@@ -220,9 +220,9 @@ class NotificationManager:
         #     print("Status unchanged. No notification sent.")
         dispdate = "2026-01-19"
     
-        count_3, waiting_days_list_3, all_cases = fetch_recent_completed_cases(dispdate, days=3)
-        count_3, waiting_days_list_3, all_cases = fetch_recent_completed_cases(dispdate, days=3)
-        count_1, waiting_days_list_1, _ = fetch_recent_completed_cases(dispdate, days=1)
+        count_3, waiting_days_list_3, all_cases = self.fetch_recent_completed_cases(dispdate, days=3)
+        count_3, waiting_days_list_3, all_cases = self.fetch_recent_completed_cases(dispdate, days=3)
+        count_1, waiting_days_list_1, _ = self.fetch_recent_completed_cases(dispdate, days=1)
         report_lines = []
         report_lines.append(f"Completed cases in last 1 day: {count_1}")
         report_lines.append(f"Completed cases in last 3 days: {count_3}")
@@ -239,7 +239,7 @@ class NotificationManager:
             report_lines.append("No cases found.")
     
         months = ["202510", "202511", "202512"]
-        stats = get_l1_visa_stats_for_months(months)
+        stats = self.get_l1_visa_stats_for_months(months)
         for ym, data in stats.items():
             report_lines.append(f"Month: {ym}")
             report_lines.append(f"  L1 Pass Rate: {data['pass_rate']}")
