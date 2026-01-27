@@ -135,78 +135,78 @@ class NotificationManager:
     return (pass_rate, waiting_days, l1_cases)
 
 
-def get_l1_visa_stats_for_months(months: list):
-    results = {}
-    for ym in months:
-        pass_rate, waiting_days, l1_cases = fetch_l1_visa_stats(ym)
-        results[ym] = {
-            'pass_rate': pass_rate,
-            'waiting_days': waiting_days,
-            'l1_cases': l1_cases
+    def get_l1_visa_stats_for_months(months: list):
+        results = {}
+        for ym in months:
+            pass_rate, waiting_days, l1_cases = fetch_l1_visa_stats(ym)
+            results[ym] = {
+                'pass_rate': pass_rate,
+                'waiting_days': waiting_days,
+                'l1_cases': l1_cases
+            }
+        return results
+
+
+    def fetch_recent_completed_cases(dispdate: str, days: int = 3):
+        """
+        Fetch cases completed in the last `days` from the given dispdate (YYYY-MM-DD or YYYY-MM).
+        Returns (count, waiting_days_list, all_cases_table)
+        """
+        url = f"https://www.checkee.info/main.php?dispdate={dispdate}"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
-    return results
-
-
-def fetch_recent_completed_cases(dispdate: str, days: int = 3):
-    """
-    Fetch cases completed in the last `days` from the given dispdate (YYYY-MM-DD or YYYY-MM).
-    Returns (count, waiting_days_list, all_cases_table)
-    """
-    url = f"https://www.checkee.info/main.php?dispdate={dispdate}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'html.parser')
-    tables = soup.find_all('table')
-    all_cases = []
-    completed_cases = []
-    waiting_days_list = []
-    from datetime import datetime, timedelta
-    # Try to parse dispdate as YYYY-MM-DD, fallback to YYYY-MM
-    try:
-        base_date = datetime.strptime(dispdate, "%Y-%m-%d")
-    except Exception:
-        base_date = None
-    for table in tables:
-        header = table.find('tr')
-        if not header:
-            continue
-        header_cells = [td.get_text(strip=True) for td in header.find_all('td')]
-        if (
-                'Visa Type' in header_cells and
-                'Status' in header_cells and
-                'Waiting Day(s)' in header_cells and
-                'Complete Date' in header_cells
-        ):
-            col_indices = {col: i for i, col in enumerate(header_cells)}
-            complete_idx = col_indices['Complete Date']
-            waiting_idx = col_indices['Waiting Day(s)']
-            status_idx = col_indices['Status']
-            # Collect all cases
-            for row in table.find_all('tr')[1:]:
-                cols = row.find_all('td')
-                if len(cols) < len(header_cells):
-                    continue
-                case = {col: cols[idx].get_text(strip=True) if idx < len(cols) else '' for col, idx in
-                        col_indices.items()}
-                all_cases.append(case)
-                # Only consider completed cases (status == 'Clear')
-                if case['Status'] == 'Clear' and case['Complete Date'] and base_date:
-                    try:
-                        comp_date = datetime.strptime(case['Complete Date'], "%Y-%m-%d")
-                        days_diff = (comp_date - base_date).days
-                        if 0 <= days_diff <= days - 1:
-                            completed_cases.append(case)
-                            try:
-                                waiting_days_list.append(int(case['Waiting Day(s)']))
-                            except Exception:
-                                pass
-                    except Exception:
-                        pass
-            break
-    return len(completed_cases), waiting_days_list, all_cases
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        tables = soup.find_all('table')
+        all_cases = []
+        completed_cases = []
+        waiting_days_list = []
+        from datetime import datetime, timedelta
+        # Try to parse dispdate as YYYY-MM-DD, fallback to YYYY-MM
+        try:
+            base_date = datetime.strptime(dispdate, "%Y-%m-%d")
+        except Exception:
+            base_date = None
+        for table in tables:
+            header = table.find('tr')
+            if not header:
+                continue
+            header_cells = [td.get_text(strip=True) for td in header.find_all('td')]
+            if (
+                    'Visa Type' in header_cells and
+                    'Status' in header_cells and
+                    'Waiting Day(s)' in header_cells and
+                    'Complete Date' in header_cells
+            ):
+                col_indices = {col: i for i, col in enumerate(header_cells)}
+                complete_idx = col_indices['Complete Date']
+                waiting_idx = col_indices['Waiting Day(s)']
+                status_idx = col_indices['Status']
+                # Collect all cases
+                for row in table.find_all('tr')[1:]:
+                    cols = row.find_all('td')
+                    if len(cols) < len(header_cells):
+                        continue
+                    case = {col: cols[idx].get_text(strip=True) if idx < len(cols) else '' for col, idx in
+                            col_indices.items()}
+                    all_cases.append(case)
+                    # Only consider completed cases (status == 'Clear')
+                    if case['Status'] == 'Clear' and case['Complete Date'] and base_date:
+                        try:
+                            comp_date = datetime.strptime(case['Complete Date'], "%Y-%m-%d")
+                            days_diff = (comp_date - base_date).days
+                            if 0 <= days_diff <= days - 1:
+                                completed_cases.append(case)
+                                try:
+                                    waiting_days_list.append(int(case['Waiting Day(s)']))
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+                break
+        return len(completed_cases), waiting_days_list, all_cases
 
     #####
     def send(self) -> None:
