@@ -126,7 +126,7 @@ class NotificationManager:
     def get_l1_visa_stats_for_months(self, months: list):
         results = {}
         for ym in months:
-            pass_rate, waiting_days, l1_cases = fetch_l1_visa_stats(ym)
+            pass_rate, waiting_days, l1_cases = self.fetch_l1_visa_stats(ym)
             results[ym] = {
                 'pass_rate': pass_rate,
                 'waiting_days': waiting_days,
