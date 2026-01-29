@@ -218,8 +218,8 @@ class NotificationManager:
         #     self.__send_notifications(res)
         # else:
         #     print("Status unchanged. No notification sent.")
-        dispdate = "2026-01-19"
-    
+        dispdate = datetime.now().strftime("%Y-%m-%d")
+
         count_3, waiting_days_list_3, all_cases = self.fetch_recent_completed_cases(dispdate, 3)
         count_3, waiting_days_list_3, all_cases = self.fetch_recent_completed_cases(dispdate, 3)
         count_1, waiting_days_list_1, _ = self.fetch_recent_completed_cases(dispdate, 1)
