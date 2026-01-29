@@ -184,7 +184,7 @@ class NotificationManager:
                     if case['Status'] == 'Clear' and case['Complete Date'] and base_date:
                         try:
                             comp_date = datetime.strptime(case['Complete Date'], "%Y-%m-%d")
-                            days_diff = (base_date - comp_date).days
+                            days_diff = (comp_date - base_date).days
                             if 0 <= days_diff <= days - 1:
                                 completed_cases.append(case)
                                 try:
